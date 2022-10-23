@@ -1,0 +1,181 @@
+//Project 1 Stacks
+//Kristen Linares 
+//COP4415.02 Data Structures
+//October 21, 2022
+#include <iostream>
+#include <string.h>
+#include <ctype.h> //needed for isdigit
+using namespace std;
+
+#define MAX 100
+
+class Stack{
+  public:
+    int top;
+    char exp[100]; //Maximun size of Stack
+  Stack(){
+    top = -1;
+  }
+
+  //functions prototypes
+  bool push(char item);
+  char pop();
+  char peek();
+  bool isEmpty();
+};
+
+bool Stack::push(char item){
+  if (top >= (MAX - 1)) { //if top is overflowing
+    cout << "Stack Overflow";
+    return false;
+  }
+  else{
+    top++;
+    exp[top] = item; //pushes the item to the top of the stack
+    return true;
+  }
+}
+
+char Stack::pop(){
+  if(top == -1){ //if top is below the stack
+    cout<< "stack underflow";
+    return 0;
+  }
+  else{
+    char x = exp[top]; //pops the item on top, out of the stack
+    top--;
+    return x; 
+  }
+}
+
+char Stack::peek(){
+  if (top < 0) {
+  cout << "Stack is Empty";
+  return 0; //there is nothing if top is less then zero
+  }
+  else {
+  char x = exp[top];
+  return x; //return what the item is
+  }
+}
+
+bool Stack::isEmpty(){
+  return (top < 0); //if top is less than zero
+}
+
+//return precedence of operators
+int prec(char c){
+  if (c == '/' || c == '*')
+    return 2; //returns the highest precedence
+  else if (c == '+' || c == '-')
+    return 1; //returns the lowest precedence
+  else
+    return -1; //returns false
+}
+
+//convert infix expressions to postfix expression
+string infixToPostfix(string infix){
+class Stack stack;
+string postfix;
+	for(int i=0; i < infix.length(); i++){
+    //if the expression is a number between 0-9
+		if(infix[i] >= '0' && infix[i] <= '9'){
+			postfix += infix[i]; //starting expression
+		}
+		else if(infix[i] == '('){
+			stack.push(infix[i]); //pushes parenthesis into stack
+		}
+		else if(infix[i] == ')'){ //for when it matches
+			while((stack.peek() != '(') && (!stack.isEmpty())){
+				char temp = stack.peek();
+				postfix += temp; //for after the parenthesis
+				stack.pop(); //pops the operator out of the stack
+			}
+			if(stack.peek() == '('){
+				stack.pop(); //pops the parenthesis out of stack
+			}
+		}
+    //if the infix is an operator
+		else if(infix[i] == '+'||infix[i] == '-'||infix[i] == '*'||infix[i] == '/'){
+			if(stack.isEmpty()){
+				stack.push(infix[i]); //pushes operator in stack when there's none
+			}
+			else{ //if there is already an opertor in stack
+				if(prec(infix[i]) > prec(stack.peek())){
+					stack.push(infix[i]); //pushes operator when greater than the previous
+				}	
+				else if((prec(infix[i]) == prec(stack.peek()))){ //if its the same
+					stack.push(infix[i]); //pushes the operator in the stack
+				}
+				else{
+          //if the operator precendence is lower than the previous
+					while((!stack.isEmpty()) && ( prec(infix[i]) <= prec(stack.peek()))){
+						postfix += stack.peek();
+						stack.pop(); //pops the operator out of the stack
+					}
+					stack.push(infix[i]); //pushes the last operator into the stack
+				}
+			}
+		}
+	}
+	while(!stack.isEmpty()){ //if stack is not empty
+		postfix += stack.peek();
+		stack.pop(); //pops out all the remaining values in stack
+	}
+  //return postfix expression
+	return postfix; 
+}
+
+//evaluate postfix expression
+int evaluatePostfix(string exp){
+  class Stack stack;
+  //goes through the length of the expression
+  for (int i = 0; i < exp.length(); i++){
+    //checks to see whether a character is a digit or not.
+    if(isdigit(exp[i])){ //keeps going until there's no more
+      stack.push(exp[i] - '0'); //char to int
+    }
+    else {
+      //removing first two characters
+      int x = stack.peek(); //for the first character
+      stack.pop();
+ 
+      int y = stack.peek(); //for the second charcter
+      stack.pop();
+      
+      //depending on the operator it will work with the first two characters
+      if (exp[i] == '+') {
+        stack.push(y + x); //adding the two characters
+      }
+      else if (exp[i] == '-') {
+        stack.push(y - x); //subtracting the two characters
+      }
+      else if (exp[i] == '*') {
+        stack.push(y * x); //multiplying the two characters
+      }
+      else if (exp[i] == '/') {
+        stack.push(y / x); //dividing the two characters
+      }
+    }
+  } 
+  //returns the result of the stack
+  return stack.peek();
+}
+
+int main() {
+  //entering input of expression
+  string exp;
+  cout <<"Enter Expression: ";
+  cin >> exp;
+  
+  string postfix;
+  int evaluation;
+  
+  postfix = infixToPostfix(exp);
+  cout << postfix << "\n"; //printing postix expression
+  
+  evaluation = evaluatePostfix(postfix);
+  cout << evaluation << "\n"; //printing postfix answer
+  
+  return 0;
+}
