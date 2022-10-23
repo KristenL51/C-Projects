@@ -1,0 +1,54 @@
+#include<iostream>
+#include<cstdlib> // for the rand and srand function
+#include <ctime> // for the time function
+using namespace std;
+
+void roll(int &var){
+   var = rand()%6+1; // rand()%6 will generate 0-5, adding 1 will give 1-6.
+}
+
+void totalSum(int roll1, int roll2, int &total){
+   total = roll1+roll2; //calculate total by adding both roll value
+}
+
+void results(int roll1, int roll2, int total){
+   cout << "You rolled " << roll1 <<" + " << roll2 <<" = "<< total << endl; //printing the total
+}
+
+int main(){
+   int roll1, roll2, total;
+   int point = 0;
+   bool lost = false;
+   srand(time(NULL)); //reset the random numbers each time.
+   while(1){
+       roll(roll1); //get roll1
+       roll(roll2); //get roll2
+       totalSum(roll1, roll2, total); //calculate total
+       results(roll1, roll2, total); //print total
+       if((point == 0) && (total == 7 || total == 11)) //If it is first time, and total is 7 or 11, you win
+           break;
+       else if((point == 0) && (total == 2 || total == 3 || total == 12)){ //if it is first time and total is 2 or 3 or 12, then you lose
+           lost = true;
+           break;
+       }
+       else{//if it is first time update the point
+           if(point == 0){
+               point = total;
+               cout << "point is " << point << endl;
+           }
+           else if(total == 7){ //if total is 7, you lose
+               lost = true;
+               break;
+           }
+           else if(point == total) //or else check if point matches to total, then you win
+               break;
+       }
+   }
+   //show the result based upon lost flag
+   if(lost == false)
+       cout << "You win" << endl;
+   else
+       cout << "You lose" << endl;
+  
+  return 0;
+}
